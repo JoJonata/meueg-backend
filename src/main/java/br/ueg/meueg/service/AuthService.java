@@ -1,4 +1,3 @@
-// service/AuthService.java
 package br.ueg.meueg.service;
 
 import br.ueg.meueg.dto.AuthRequest;

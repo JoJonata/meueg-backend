@@ -1,3 +1,4 @@
+//AuthController.java
 package br.ueg.meueg.controller;
 
 import br.ueg.meueg.dto.*;

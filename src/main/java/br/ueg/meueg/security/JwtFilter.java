@@ -1,6 +1,7 @@
 package br.ueg.meueg.security;
 
 import br.ueg.meueg.repository.UserRepository;
+import br.ueg.meueg.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -19,7 +20,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserRepository serRepository;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
             final String username = jwtUtil.getUsernameFromToken(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User user = (User) userRepository.findByUsername(username).orElse(null);
+                User user = userRepository.findByUsername(username).orElse(null);
 
                 if (user != null && jwtUtil.isTokenValid(jwt)) {
                     UserDetails userDetails = org.springframework.security.core.userdetails.User
@@ -43,6 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
                             .build();
 
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+
                             userDetails, null, userDetails.getAuthorities());
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -52,5 +54,15 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth/login") ||
+                path.startsWith("/auth/register") ||
+                path.startsWith("/swagger-ui/") ||
+                path.startsWith("/v3/api-docs/") ||
+                path.startsWith("/swagger-resources/") ||
+                path.startsWith("/webjars/");
     }
 }

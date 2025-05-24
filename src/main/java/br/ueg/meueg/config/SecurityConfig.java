@@ -21,9 +21,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/**") // opcional
+                .securityMatcher("/**") // opcional, mas ok para este cenário
                 .authorizeHttpRequests(auth -> auth
+                        // URLs para autenticação e registro
                         .requestMatchers("/auth/**").permitAll()
+
+                        // URLs do Swagger UI
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll() // Para OpenApi 3 (Springdoc)
+                        .requestMatchers("/swagger-resources/**").permitAll() // Se você usar versões mais antigas do Swagger
+                        .requestMatchers("/webjars/**").permitAll() // Recursos estáticos do Swagger
+
+                        // Qualquer outra requisição precisa ser autenticada
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

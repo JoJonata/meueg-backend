@@ -1,4 +1,3 @@
-// service/impl/AuthServiceImpl.java
 package br.ueg.meueg.service.impl;
 
 import br.ueg.meueg.dto.*;
@@ -7,10 +6,13 @@ import br.ueg.meueg.repository.UserRepository;
 import br.ueg.meueg.security.JwtUtil;
 import br.ueg.meueg.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
+    private final AuthenticationManager authenticationManager;
     @Override
     public void register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -36,20 +38,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(AuthRequest request) {
-        Optional<User> optionalUser = userRepository.findByUsername(request.getUsername());
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
 
-        if (optionalUser.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+            String token = jwtUtil.generateToken(userDetails.getUsername());
+            return new AuthResponse(token);
+
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Credenciais inválidas");
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao fazer login: " + e.getMessage());
         }
-
-        User user = optionalUser.get();
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Senha inválida");
-        }
-
-        String token = jwtUtil.generateToken(user.getUsername());
-        return new AuthResponse(token);
     }
 
 }
