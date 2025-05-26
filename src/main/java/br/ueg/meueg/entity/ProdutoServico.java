@@ -9,27 +9,27 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "produto_servico") // Nome da tabela no banco
-@Data // Lombok para getters, setters, toString, equals e hashCode
+@Table(name = "produto_servico")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder // Para usar o User.builder()...
+@Builder
 public class ProdutoServico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_produto; // Ou apenas 'id'
+    private Long id_produto;
 
     @Column(nullable = false, unique = true)
     private String nome;
 
     @Column(nullable = false)
-    private String tipo; // Ex: "Produto", "Servico"
+    private String tipo;
 
-    @Column(nullable = false, precision = 10, scale = 2) // Exemplo para valores monetários
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal preco;
 
-    @Column(nullable = false, precision = 10, scale = 2) // Exemplo para valores monetários
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal custo;
 
     @Column(nullable = false)
