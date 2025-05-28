@@ -18,7 +18,9 @@ public class ProdutoServico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_produto;
+    @Column(name = "id_produto") // <--- ESTA ANOTAÇÃO É FUNDAMENTAL!
+    private Long id;
+
 
     @Column(nullable = false, unique = true)
     private String nome;

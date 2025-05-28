@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/produtos-servicos") // Endpoint para o CRUD de produtos/serviços
+@RequestMapping("/api/v1/produtos-servicos")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "BearerAuth")
 public class ProdutoServicoController {
@@ -60,7 +60,7 @@ public class ProdutoServicoController {
 
     private ProdutoServicoDTO toDTO(ProdutoServico entity) {
         ProdutoServicoDTO dto = new ProdutoServicoDTO();
-        dto.setId_produto(entity.getId_produto());
+        dto.setId(entity.getId());
         dto.setNome(entity.getNome());
         dto.setTipo(entity.getTipo());
         dto.setPreco(entity.getPreco());
@@ -71,7 +71,7 @@ public class ProdutoServicoController {
 
     private ProdutoServico toEntity(ProdutoServicoDTO dto) {
         return ProdutoServico.builder()
-                .id_produto(dto.getId_produto())
+                .id(dto.getId())
                 .nome(dto.getNome())
                 .tipo(dto.getTipo())
                 .preco(dto.getPreco())
