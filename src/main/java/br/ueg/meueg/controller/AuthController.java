@@ -1,4 +1,3 @@
-//AuthController.java
 package br.ueg.meueg.controller;
 
 import br.ueg.meueg.dto.*;
@@ -21,7 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 }
