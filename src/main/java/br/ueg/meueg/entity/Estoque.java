@@ -24,4 +24,8 @@ public class Estoque {
 
     @Column(nullable = false)
     private Integer quantidade;
+
+    @ManyToOne(fetch = FetchType.LAZY) // Relacionamento com User
+    @JoinColumn(name = "id_usuario", nullable = false) // Coluna da chave estrangeira para o usuário
+    private User usuario;
 }
