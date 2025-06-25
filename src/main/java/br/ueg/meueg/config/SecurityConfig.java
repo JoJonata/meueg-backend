@@ -33,6 +33,8 @@ public class SecurityConfig {
                         .requestMatchers("/webjars/**").permitAll() // Recursos estáticos do Swagger
 
                         // Qualquer outra requisição precisa ser autenticada
+                        // Em SecurityConfig.java, dentro de authorizeHttpRequests:
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permite preflight requests
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
