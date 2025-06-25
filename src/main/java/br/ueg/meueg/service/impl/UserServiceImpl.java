@@ -56,4 +56,11 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
+
+    public User findByUsername(String username) {
+        // Assume que 'username' no seu User Entity é o campo que você usa para login
+        // (geralmente o email)
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o username: " + username));
+    }
 }

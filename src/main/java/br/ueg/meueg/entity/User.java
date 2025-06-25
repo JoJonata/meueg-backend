@@ -18,4 +18,6 @@ public class User {
     private String username;
     private String password;
     private String email;
+    @Column(nullable = false) // Se o nome for obrigatório
+    private String nome; // <--- NOVO CAMPO
 }

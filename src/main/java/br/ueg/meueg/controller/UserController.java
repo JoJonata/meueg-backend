@@ -3,20 +3,30 @@ package br.ueg.meueg.controller;
 import br.ueg.meueg.dto.UserDTO;
 import br.ueg.meueg.entity.User;
 import br.ueg.meueg.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
 public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser(Principal principal) {
+        String usernameFromToken = principal.getName();
+        User userEntity = userService.findByUsername(usernameFromToken);
+
+        return ResponseEntity.ok(toDTO(userEntity));
+    }
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.findAll().stream()
@@ -68,4 +78,7 @@ public class UserController {
                 .email(dto.getEmail())
                 .build();
     }
+
+
+
 }
