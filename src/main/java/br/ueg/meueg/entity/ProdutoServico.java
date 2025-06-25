@@ -21,7 +21,6 @@ public class ProdutoServico {
     @Column(name = "id_produto") // <--- ESTA ANOTAÇÃO É FUNDAMENTAL!
     private Long id;
 
-
     @Column(nullable = false, unique = true)
     private String nome;
 
@@ -36,4 +35,8 @@ public class ProdutoServico {
 
     @Column(nullable = false)
     private String categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id")
+    private User usuario;
 }

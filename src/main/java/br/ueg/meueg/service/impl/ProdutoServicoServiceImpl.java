@@ -1,6 +1,7 @@
 package br.ueg.meueg.service.impl;
 
 import br.ueg.meueg.entity.ProdutoServico;
+import br.ueg.meueg.entity.User;
 import br.ueg.meueg.repository.ProdutoServicoRepository;
 import br.ueg.meueg.service.ProdutoServicoService;
 import jakarta.persistence.EntityNotFoundException;
@@ -51,5 +52,10 @@ public class ProdutoServicoServiceImpl implements ProdutoServicoService {
             throw new EntityNotFoundException("Produto/Serviço não encontrado com ID: " + id);
         }
         produtoServicoRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ProdutoServico> findByUsuario(User usuario) {
+        return produtoServicoRepository.findByUsuario(usuario);
     }
 }
