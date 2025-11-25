@@ -21,19 +21,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/**") // opcional, mas ok para este cenário
+                .securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth
                         // URLs para autenticação e registro
                         .requestMatchers("/auth/**").permitAll()
 
                         // URLs do Swagger UI
                         .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll() // Para OpenApi 3 (Springdoc)
-                        .requestMatchers("/swagger-resources/**").permitAll() // Se você usar versões mais antigas do Swagger
-                        .requestMatchers("/webjars/**").permitAll() // Recursos estáticos do Swagger
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
 
-                        // Qualquer outra requisição precisa ser autenticada
-                        // Em SecurityConfig.java, dentro de authorizeHttpRequests:
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permite preflight requests
                         .anyRequest().authenticated()
                 )

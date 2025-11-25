@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Credenciais do Google Cloud
+src/main/resources/google-credentials.json
+
+
+

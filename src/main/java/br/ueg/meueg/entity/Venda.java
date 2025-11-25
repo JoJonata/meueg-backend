@@ -1,5 +1,6 @@
 package br.ueg.meueg.entity;
 
+import br.ueg.meueg.enums.FormaPagamento;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,8 @@ public class Venda {
     private BigDecimal valor_total;
 
     @Column(nullable = false)
-    private String forma_pagamento;
+    @Enumerated(EnumType.STRING)
+    private FormaPagamento forma_pagamento;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario", referencedColumnName = "id", nullable = false)

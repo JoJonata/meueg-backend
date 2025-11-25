@@ -1,5 +1,6 @@
 package br.ueg.meueg.service;
 
+import br.ueg.meueg.dto.VendaDTO;
 import br.ueg.meueg.entity.Venda;
 import java.util.List;
 import java.util.Optional;
@@ -10,4 +11,6 @@ public interface VendaService {
     Venda save(Venda venda);
     Venda update(Long id, Venda venda);
     void delete(Long id);
+
+    VendaDTO processarPropostaVoz(VendaDTO vendaDTO);
 }

@@ -6,6 +6,7 @@ import br.ueg.meueg.entity.ProdutoServico;
 import br.ueg.meueg.entity.User;
 import br.ueg.meueg.entity.Venda;
 import br.ueg.meueg.entity.VendaItem;
+import br.ueg.meueg.enums.FormaPagamento;
 import br.ueg.meueg.service.VendaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 public class VendaController {
 
     private final VendaService vendaService;
+
+    // --- ENDPOINTS PADRÃO ---
 
     @GetMapping
     @Operation(summary = "Lista todas as vendas")
@@ -45,7 +48,7 @@ public class VendaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Cria uma nova venda")
+    @Operation(summary = "Cria uma nova venda (Manual ou Confirmada)")
     public ResponseEntity<VendaDTO> createVenda(@RequestBody VendaDTO dto) {
         Venda venda = toEntity(dto);
         Venda savedVenda = vendaService.save(venda);
@@ -55,11 +58,11 @@ public class VendaController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza a forma de pagamento e o usuário de uma venda existente")
     public ResponseEntity<VendaDTO> updateVenda(@PathVariable Long id, @RequestBody VendaDTO dto) {
-        // A conversão para entidade aqui só precisa dos campos que podem ser atualizados
         User user = User.builder().id(dto.getIdUsuario()).build();
+        FormaPagamento formaPagamento = FormaPagamento.valueOf(dto.getForma_pagamento());
         Venda venda = Venda.builder()
                 .usuario(user)
-                .forma_pagamento(dto.getForma_pagamento())
+                .forma_pagamento(formaPagamento)
                 .build();
         Venda updatedVenda = vendaService.update(id, venda);
         return ResponseEntity.ok(toDTO(updatedVenda));
@@ -73,12 +76,47 @@ public class VendaController {
         return ResponseEntity.noContent().build();
     }
 
+    // --- ENDPOINTS DE VOZ (FLUXO NOVO) ---
+
+    /**
+     * PASSO 1: SIMULAÇÃO
+     * Recebe o texto da IA (ex: "pipoca"), busca preços e retorna a proposta.
+     * NÃO SALVA NO BANCO AINDA.
+     */
+    @PostMapping("/simular-venda-voz") // No Flutter, aponte para este endpoint primeiro
+    @Operation(summary = "Recebe itens da IA, busca preços e retorna prévia (sem salvar)")
+    public ResponseEntity<VendaDTO> simularVendaVoz(@RequestBody VendaDTO dto) {
+        // Chama o método que apenas calcula e preenche os dados (Service alterado no passo anterior)
+        VendaDTO proposta = vendaService.processarPropostaVoz(dto);
+        return ResponseEntity.ok(proposta);
+    }
+
+    /**
+     * PASSO 2: CONFIRMAÇÃO
+     * Recebe a proposta confirmada pelo usuário e SALVA de verdade.
+     */
+    @PostMapping("/confirmar-venda-voz")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Finaliza e salva uma venda previamente processada por voz.")
+    public ResponseEntity<VendaDTO> confirmarVendaVoz(@RequestBody VendaDTO dto) {
+        // 1. Converte o DTO (que agora tem preços e IDs certos) para Entidade
+        Venda venda = toEntity(dto);
+
+        // 2. Chama o SAVE real (que baixa estoque e salva no banco)
+        // OBS: Não use 'processarPropostaVoz' aqui, use 'save'!
+        Venda savedVenda = vendaService.save(venda);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(savedVenda));
+    }
+
+    // --- MÉTODOS AUXILIARES (CONVERSÃO) ---
+
     private VendaDTO toDTO(Venda entity) {
         VendaDTO dto = new VendaDTO();
         dto.setId(entity.getId_venda());
         dto.setData(entity.getData());
         dto.setValor_total(entity.getValor_total());
-        dto.setForma_pagamento(entity.getForma_pagamento());
+        dto.setForma_pagamento(entity.getForma_pagamento().toString());
         dto.setIdUsuario(entity.getUsuario() != null ? entity.getUsuario().getId() : null);
         dto.setUsernameUsuario(entity.getUsuario() != null ? entity.getUsuario().getUsername() : null);
 
@@ -106,9 +144,18 @@ public class VendaController {
             usuario = User.builder().id(dto.getIdUsuario()).build();
         }
 
+        FormaPagamento formaPagamento = null;
+        if(dto.getForma_pagamento() != null) {
+            try {
+                formaPagamento = FormaPagamento.valueOf(dto.getForma_pagamento());
+            } catch (Exception e) {
+                formaPagamento = FormaPagamento.DINHEIRO; // Fallback
+            }
+        }
+
         Venda venda = Venda.builder()
                 .id_venda(dto.getId())
-                .forma_pagamento(dto.getForma_pagamento())
+                .forma_pagamento(formaPagamento)
                 .usuario(usuario)
                 .build();
 
